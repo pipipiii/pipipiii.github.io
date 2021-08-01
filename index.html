@@ -66,6 +66,17 @@ path.rankline {
 	stroke: #616161;
 	stroke-width: 5;
 }
+path.rankline {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: dash 5s linear forwards;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 path.annotation1 {
 	stroke: #616161;
 	stroke-width: 1;
@@ -108,9 +119,13 @@ div.ranktooltip {
 	height: 20px;
 }
 
+div.reference {
+	margin-top: 200px;
+}
+
 </style>
 <body onload='init()'>
-	<h1>China in Olympics</h1>
+	<h1>China at the Olympics</h1>
 
 	<div class="tab">
 		<button id="year_button" class="tablinks" onclick="showScene(event, 'year')">By Year</button>
@@ -126,6 +141,10 @@ div.ranktooltip {
 		<h2>Medal Count by Sport</h2>
 		<svg/>
 	</div>
+    
+    <div class="reference">
+    Data from <a href="https://en.wikipedia.org/wiki/China_at_the_Olympics" target="_blank">https://en.wikipedia.org/wiki/China_at_the_Olympics</a>
+    </div>
 
 
 	<script>
@@ -272,7 +291,7 @@ div.ranktooltip {
 			.datum(data)
 			.attr("class", "rankline")
 			.attr("d", line);
-
+         
 			g.selectAll()
 			.data(data)
 			.enter()
@@ -296,7 +315,7 @@ div.ranktooltip {
 			});
 
 			/* Add annotations to the graph.*/
-            drawAnnotations(d3.select('#year svg'), margin/3);
+            drawAnnotations(d3.select('#year svg'), margin, width, height);
             drawAnnotation2(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952.", 200);
             
             drawAnnotation2(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Large drop in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
@@ -327,9 +346,34 @@ div.ranktooltip {
         
         }
 
-		function drawAnnotations(g, margin) {
+		function drawAnnotations(g, margin, width, height) {
+        	/* Label axis */
+			g.append("g")
+            .attr("transform", "translate(" + (margin/2) + ", " + (margin + height/2) + ") rotate(270)")
+            .append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .text("Number of medals");
+
+			g.append("g")
+            .attr("transform", "translate(" + (width + margin*3/2) + ", " + (margin + height/2) + ") rotate(90)")
+            .append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .text("World rank");
+
+			g.append("g")
+            .attr("transform", "translate(" + (width+margin/2) + ", " + (margin*4/3 + height) + ")")
+            .append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .text("Year");
+        
 			var gold = g.append("g")
-            .attr("transform", "translate(" + margin + ", " + margin + ")");
+            .attr("transform", "translate(" + margin/3 + ", " + margin/3 + ")");
             gold.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#fff176");
             gold.append("text")
                 .attr("x", 20)
@@ -338,7 +382,7 @@ div.ranktooltip {
                 .style("font-weight", "bold")
                 .text("Gold");
 			var silver = g.append("g")
-            .attr("transform", "translate(" + margin + ", " + (margin + 30) + ")");
+            .attr("transform", "translate(" + margin/3 + ", " + (margin/3 + 30) + ")");
             silver.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#bdbdbd");
             silver.append("text")
                 .attr("x", 20)
@@ -347,7 +391,7 @@ div.ranktooltip {
                 .style("font-weight", "bold")
                 .text("Silver");
 			var bronze = g.append("g")
-            .attr("transform", "translate(" + margin + ", " + (margin + 60) + ")");
+            .attr("transform", "translate(" + margin/3 + ", " + (margin/3 + 60) + ")");
             bronze.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#c17900");
             bronze.append("text")
                 .attr("x", 20)
