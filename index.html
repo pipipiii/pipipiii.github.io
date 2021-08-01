@@ -135,6 +135,7 @@ div.ranktooltip {
 			/* Start with medals scene */
 			document.getElementById("year_button").click();
 		}
+
 		async function initYearGraph() {
 			const data = await d3.csv('https://pipipiii.github.io/china_olympics_medal_count_by_year.csv',
 				function(d) {
@@ -295,21 +296,23 @@ div.ranktooltip {
 			});
 
 			/* Add annotations to the graph.*/
-            drawAnnotationSusieLu(g, 140, height, "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.");
+            drawAnnotation2(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Large drop in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
+            
+            drawAnnotation2(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games were hosted in Beijing.", 300);
 		}
         
-        function drawAnnotationSusieLu(g, x, y, text) {
+        function drawAnnotation2(g, x, y, dx, dy, title, text, wrap) {
         	const annotations = [
               {
                 note: {
                   label: text,
-                  title: "annotation",
-           	      wrap: 300
+                  title: title,
+           	      wrap: wrap
                 },
                 x: x,
                 y: y,
-                dy: 50,
-                dx: 60
+                dy: dx,
+                dx: dy
               }
             ];
 
