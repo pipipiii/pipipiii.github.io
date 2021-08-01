@@ -134,7 +134,7 @@ div.reference {
 		<h2>Medal Count by Sport</h2>
 		<svg></svg>
 	</div>
-	
+
 	<div class="reference">
 		Data from <a href="https://en.wikipedia.org/wiki/China_at_the_Olympics" target="_blank">https://en.wikipedia.org/wiki/China_at_the_Olympics</a>
 	</div>
@@ -156,7 +156,7 @@ div.reference {
 						total: +d.Total,
 					};
 				});
-			const width = 2000;
+			const width = 1000;
 			const height = width;
 			const margin = 400;
 
@@ -182,7 +182,7 @@ div.reference {
 			var color = d3.scaleOrdinal()
 			.domain(data.map(d => d.sport))
 			.range(d3.schemePastel1);
-			
+
 			var sportmouseover = function(event, d) {
 				const i = d.index;
 				sporttooltip.transition()		
@@ -193,7 +193,7 @@ div.reference {
 				.style("left", event.pageX + "px")		
 				.style("top", event.pageY - 60 + "px");	
 			}; 
-			
+
 			var sportmouseout = function(event, d) {
 				sporttooltip.transition()		
 				.duration(500)
@@ -226,7 +226,7 @@ div.reference {
 			.text( function(d, i) {
 				return data[i].total > 20 ? data[i].sport : "";}
 				);
-			
+
 			/* Draw annotations. */
 			drawAnnotations(g, g.select("path#Diving").attr("x"), arcs.select("path#Diving").attr("y"), 150, 20, "Best nation", "China has been the best nation at summer Olympics diving since 1988.", 150);
 			drawAnnotations(g, g.select("path#Gymnastics").attr("x"), arcs.select("path#Gymnastics").attr("y"), 50, 70, "Runner-up", "Despite having the most medals in Gymnastics among all sports, China is still behind U.S. and Japan in total medal count.", 150);
@@ -280,7 +280,7 @@ div.reference {
 			.append("g")
 			.attr("transform", "translate(" + margin + "," + margin + ")")
 			.call(d3.axisLeft(y1));
-			
+
 			/* Draw data. */
 			var g = d3.select('#year svg')
 			.attr("width", width + 2*margin)
@@ -301,7 +301,7 @@ div.reference {
 				.style("left", event.pageX + "px")		
 				.style("top", event.pageY - 60 + "px");	
 			}; 
-			
+
 			var medalmouseout = function(event, d) {
 				d3.select('#year svg rect.gold.y' + d.year).attr('hover', false);
 				d3.select('#year svg rect.silver.y' + d.year).attr('hover', false);
@@ -371,7 +371,7 @@ div.reference {
 			.style("stroke-dasharray", 2000)
 			.style("stroke-dashoffset", 2000)
 			.style("animation", "dash 2s linear forwards");
-			
+
 			/* Draw points for rank */
 			g.selectAll()
 			.data(data)
@@ -403,7 +403,7 @@ div.reference {
 			drawAnnotations(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Dip in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
 			drawAnnotations(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
 		}
-		
+
 		function drawAnnotations(g, x, y, dx, dy, title, text, wrap) {
 			const annotations = [
 			{
@@ -424,7 +424,7 @@ div.reference {
             .annotations(annotations)
             g.append("g")
             .call(makeAnnotations);
-            
+
         }
 
         function drawYearGraphLabels(g, margin, width, height) {
@@ -432,7 +432,7 @@ div.reference {
         	drawAxisLabel(g, margin/2, margin + height/2, 270, "Number of medals");
         	drawAxisLabel(g,(width + margin*3/2) , (margin + height/2), 90, "World rank");
         	drawAxisLabel(g,(width+margin/2),  (margin*4/3 + height), 0, "Year");
-        	
+
         	drawMedalLabel(g,  margin/3 , margin/3, "#fff176", "Gold");
         	drawMedalLabel(g,  margin/3 , margin/3 + 30, "#bdbdbd", "Silver");
         	drawMedalLabel(g,  margin/3 , margin/3 + 60, "#c17900", "Bronze");
