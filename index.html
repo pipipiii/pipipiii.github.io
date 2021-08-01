@@ -129,12 +129,12 @@ div.reference {
 
 	<div id="year" class="tabcontent">
 		<h2>Medal Count by Year </h2>
-		<svg/>
+		<svg height=1000 width=1000></svg>
 	</div>
 
 	<div id="sport" class="tabcontent">
 		<h2>Medal Count by Sport</h2>
-		<svg/>
+		<svg height=700 width=700></svg>
 	</div>
     
     <div class="reference">
@@ -145,9 +145,44 @@ div.reference {
 	<script>
 		async function init() {
 			initYearGraph();
+            initSportGraph();
 
 			/* Start with medals scene */
 			document.getElementById("year_button").click();
+		}
+		async function initSportGraph() {
+			const data = await d3.csv('https://pipipiii.github.io/china_olympics_medal_count_by_sport.csv',
+				function(d) {
+					return {
+						sport : d.Sport,
+						gold: +d.Gold,
+						silver: +d.Silver,
+						bronze: +d.Bronze,
+						total: +d.Total,
+					};
+				});
+			const width = 700;
+			const height = 700;
+			const margin = 200;
+
+			var g = d3.select('#sport svg')
+			.attr("width", width + 2*margin)
+			.attr("height", height + 2*margin)
+			.append("g")
+			.attr("transform", "translate(" + margin + "," + margin + ")");
+
+			var pie = d3.pie();
+			var arc = d3.arc().innerRadius(0).outerRadius(100);
+            color = d3.scaleOrdinal()
+            .domain(data.map(d => d.name))
+            .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse());
+			g.selectAll()
+			.data(pie(data))
+			.enter()
+			.append("path")
+				.attr("d", arc)
+      			attr("fill", d => color(d.data.name));
+
 		}
 
 		async function initYearGraph() {
@@ -290,6 +325,7 @@ div.reference {
             .style("stroke-dashoffset", 2000)
             .style("animation", "dash 2s linear forwards");
          
+			/* Draw points for rank */
 			g.selectAll()
 			.data(data)
 			.enter()
@@ -312,16 +348,16 @@ div.reference {
 				.style("opacity", 0);	
 			});
 
+			/* Label the graph */
+            drawYearGraphLabels(d3.select('#year svg'), margin, width, height);
+
 			/* Add annotations to the graph.*/
-            drawAnnotations(d3.select('#year svg'), margin, width, height);
-            drawAnnotation2(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952.", 200);
-            
-            drawAnnotation2(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Large drop in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
-            
-            drawAnnotation2(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
+            drawAnnotations(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952.", 200);
+            drawAnnotations(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Dip in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
+            drawAnnotations(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
 		}
         
-        function drawAnnotation2(g, x, y, dx, dy, title, text, wrap) {
+        function drawAnnotations(g, x, y, dx, dy, title, text, wrap) {
         	const annotations = [
               {
                 note: {
@@ -344,59 +380,38 @@ div.reference {
         
         }
 
-		function drawAnnotations(g, margin, width, height) {
+		function drawYearGraphLabels(g, margin, width, height) {
         	/* Label axis */
-			g.append("g")
-            .attr("transform", "translate(" + (margin/2) + ", " + (margin + height/2) + ") rotate(270)")
-            .append("text")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text("Number of medals");
-
-			g.append("g")
-            .attr("transform", "translate(" + (width + margin*3/2) + ", " + (margin + height/2) + ") rotate(90)")
-            .append("text")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text("World rank");
-
-			g.append("g")
-            .attr("transform", "translate(" + (width+margin/2) + ", " + (margin*4/3 + height) + ")")
-            .append("text")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text("Year");
+            drawAxisLabel(g, margin/2, margin + height/2, 270, "Number of medals");
+            drawAxisLabel(g,(width + margin*3/2) , (margin + height/2), 90, "World rank");
+            drawAxisLabel(g,(width+margin/2),  (margin*4/3 + height), 0, "Year");
         
-			var gold = g.append("g")
-            .attr("transform", "translate(" + margin/3 + ", " + margin/3 + ")");
-            gold.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#fff176");
-            gold.append("text")
+            drawMedalLabel(g,  margin/3 , margin/3, "#fff176", "Gold");
+            drawMedalLabel(g,  margin/3 , margin/3 + 30, "#bdbdbd", "Silver");
+            drawMedalLabel(g,  margin/3 , margin/3 + 60, "#c17900", "Bronze");
+		}
+
+		function drawAxisLabel(g, x, y, rotate, text) {
+			g.append("g")
+            .attr("transform", "translate(" + x + ", " + y + ")" + (rotate ? (" rotate(" + rotate + ")"):""))
+            .append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .text(text);
+		}
+
+		function drawMedalLabel(g, x, y, fill, text) {
+			var label = g.append("g")
+            .attr("transform", "translate(" + x + ", " + y + ")");
+            label.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", fill);
+            label.append("text")
                 .attr("x", 20)
                 .attr("y", 0)
                 .attr("dy", ".35em")
                 .style("font-weight", "bold")
-                .text("Gold");
-			var silver = g.append("g")
-            .attr("transform", "translate(" + margin/3 + ", " + (margin/3 + 30) + ")");
-            silver.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#bdbdbd");
-            silver.append("text")
-                .attr("x", 20)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .style("font-weight", "bold")
-                .text("Silver");
-			var bronze = g.append("g")
-            .attr("transform", "translate(" + margin/3 + ", " + (margin/3 + 60) + ")");
-            bronze.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#c17900");
-            bronze.append("text")
-                .attr("x", 20)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .style("font-weight", "bold")
-                .text("Bronze");
+                .text(text);
+
 		}
 
 		function showScene(evt, scene) {
