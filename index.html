@@ -68,9 +68,9 @@ path.rankline {
 }
 
 @keyframes dash {
-  to {
-    stroke-dashoffset: 0;
-  }
+	to {
+		stroke-dashoffset: 0;
+	}
 }
 path.annotation1 {
 	stroke: #616161;
@@ -134,17 +134,14 @@ div.reference {
 		<h2>Medal Count by Sport</h2>
 		<svg></svg>
 	</div>
-    
-    <div class="reference">
-    Data from <a href="https://en.wikipedia.org/wiki/China_at_the_Olympics" target="_blank">https://en.wikipedia.org/wiki/China_at_the_Olympics</a>
-    </div>
+	
+	<div class="reference">
+		Data from <a href="https://en.wikipedia.org/wiki/China_at_the_Olympics" target="_blank">https://en.wikipedia.org/wiki/China_at_the_Olympics</a>
+	</div>
 
 
 	<script>
 		async function init() {
-			initYearGraph();
-            initSportGraph();
-
 			/* Start with medals scene */
 			document.getElementById("year_button").click();
 		}
@@ -175,63 +172,64 @@ div.reference {
 			.attr("transform", "translate(" + margin + "," + margin + ")");
 
 			var pie = d3.pie()
-            .sort(function (a, b) {
-            	return b.total > a.total;
-                }).value(d => d.total);
-            var radius = 300;
+			.sort(function (a, b) {
+				return b.total > a.total;
+			}).value(d => d.total);
+			var radius = 300;
 			var arc = d3.arc().innerRadius(0).outerRadius(radius);
 			var arcLabel = d3.arc().innerRadius(radius * 0.8).outerRadius(radius * 0.8);
-            var color = d3.scaleOrdinal()
-              .domain(data.map(d => d.sport))
-              .range(d3.schemePastel1);
-                
-            var sportmouseover = function(event, d) {
-            	const i = d.index;
+			var arcAnnotation = d3.arc().innerRadius(radius).outerRadius(radius);
+			var color = d3.scaleOrdinal()
+			.domain(data.map(d => d.sport))
+			.range(d3.schemePastel1);
+			
+			var sportmouseover = function(event, d) {
+				const i = d.index;
 				sporttooltip.transition()		
 				.duration(200)		
 				.style("opacity", .9);		
 				sporttooltip.html("<div>Sport: " + data[i].sport + "</div>" + "<div>Total: " + data[i].total + "</div>" + "<div>Gold: " + data[i].gold + "</div>"
-                 + "<div>Silver: " + data[i].silver + "</div>" + "<div>Bronze: " + data[i].bronze + "</div>")
+					+ "<div>Silver: " + data[i].silver + "</div>" + "<div>Bronze: " + data[i].bronze + "</div>")
 				.style("left", event.pageX + "px")		
 				.style("top", event.pageY - 60 + "px");	
 			}; 
-            
-            var sportmouseout = function(event, d) {
+			
+			var sportmouseout = function(event, d) {
 				sporttooltip.transition()		
 				.duration(500)
 				.style("opacity", 0);	
 			};
 
-            var arcs = g.selectAll('path')
-              .data(pie(data))
-              .enter()
-              .append("g");
+			var arcs = g.selectAll('path')
+			.data(pie(data))
+			.enter()
+			.append("g");
 
-            arcs.append("path")
-                .attr("d", function (d) {
-                    return arc(d);
-                })
-                .attr("fill", function(d){
-                    return color(d);
-                })
-                .attr("id", function(d) {return data[d.index].sport;})
-                .attr("x", function(d) {return arcLabel.centroid(d)[0];})
-                .attr("y", function(d) {return arcLabel.centroid(d)[1];})
-				.on("mouseover", sportmouseover)					
-				.on("mouseout", sportmouseout);
+			arcs.append("path")
+			.attr("d", function (d) {
+				return arc(d);
+			})
+			.attr("fill", function(d){
+				return color(d);
+			})
+			.attr("id", function(d) {return data[d.index].sport;})
+			.attr("x", function(d) {return arcAnnotation.centroid(d)[0];})
+			.attr("y", function(d) {return arcAnnotation.centroid(d)[1];})
+			.on("mouseover", sportmouseover)					
+			.on("mouseout", sportmouseout);
 
-            arcs.append("text")
-              .attr("transform", function(d) {
-                  return "translate(" + arcLabel.centroid(d) + ")";
-                })
-                .attr("text-anchor", "middle")
-                .text( function(d, i) {
-                  return data[i].total > 20 ? data[i].sport : "";}
-                );
-                
-            /* Draw annotations. */
-            drawAnnotations(g, g.select("path#Diving").attr("x"), arcs.select("path#Diving").attr("y"), -150, -150, "", "China has been the best nation at summer Olympics diving since 1988.", 50);
-            drawAnnotations(g, g.select("path#Gymnastics").attr("x"), arcs.select("path#Gymnastics").attr("y"), 50, 150, "", "Despite having the most medals in Gymnastics among all sports, China is still behind U.S. and Japan in total medal count.", 10);
+			arcs.append("text")
+			.attr("transform", function(d) {
+				return "translate(" + arcLabel.centroid(d) + ")";
+			})
+			.attr("text-anchor", "middle")
+			.text( function(d, i) {
+				return data[i].total > 20 ? data[i].sport : "";}
+				);
+			
+			/* Draw annotations. */
+			drawAnnotations(g, g.select("path#Diving").attr("x"), arcs.select("path#Diving").attr("y"), 150, 20, "Best nation", "China has been the best nation at summer Olympics diving since 1988.", 150);
+			drawAnnotations(g, g.select("path#Gymnastics").attr("x"), arcs.select("path#Gymnastics").attr("y"), 50, 70, "Runner-up", "Despite having the most medals in Gymnastics among all sports, China is still behind U.S. and Japan in total medal count.", 150);
 		}
 
 		async function initYearGraph() {
@@ -282,8 +280,8 @@ div.reference {
 			.append("g")
 			.attr("transform", "translate(" + margin + "," + margin + ")")
 			.call(d3.axisLeft(y1));
-            
-            /* Draw data. */
+			
+			/* Draw data. */
 			var g = d3.select('#year svg')
 			.attr("width", width + 2*margin)
 			.attr("height", height + 2*margin)
@@ -291,23 +289,23 @@ div.reference {
 			.attr("transform", "translate(" + margin + "," + margin + ")");
 
 			/* Draw bars for medals */
-            var medalmouseover = function(event, d) {
-            	d3.select('#year svg rect.gold.y' + d.year).attr('hover', true);
-            	d3.select('#year svg rect.silver.y' + d.year).attr('hover', true);
-            	d3.select('#year svg rect.bronze.y' + d.year).attr('hover', true);
+			var medalmouseover = function(event, d) {
+				d3.select('#year svg rect.gold.y' + d.year).attr('hover', true);
+				d3.select('#year svg rect.silver.y' + d.year).attr('hover', true);
+				d3.select('#year svg rect.bronze.y' + d.year).attr('hover', true);
 				medaltooltip.transition()		
 				.duration(200)		
 				.style("opacity", .9);		
 				medaltooltip.html("<div>Total: " + d.total + "</div>" + "<div>Gold: " + d.gold + "</div>"
-                 + "<div>Silver: " + d.silver + "</div>" + "<div>Bronze: " + d.bronze + "</div>")
+					+ "<div>Silver: " + d.silver + "</div>" + "<div>Bronze: " + d.bronze + "</div>")
 				.style("left", event.pageX + "px")		
 				.style("top", event.pageY - 60 + "px");	
 			}; 
-            
-            var medalmouseout = function(event, d) {
-            	d3.select('#year svg rect.gold.y' + d.year).attr('hover', false);
-            	d3.select('#year svg rect.silver.y' + d.year).attr('hover', false);
-            	d3.select('#year svg rect.bronze.y' + d.year).attr('hover', false);
+			
+			var medalmouseout = function(event, d) {
+				d3.select('#year svg rect.gold.y' + d.year).attr('hover', false);
+				d3.select('#year svg rect.silver.y' + d.year).attr('hover', false);
+				d3.select('#year svg rect.bronze.y' + d.year).attr('hover', false);
 				medaltooltip.transition()		
 				.duration(500)
 				.style("opacity", 0);	
@@ -324,7 +322,7 @@ div.reference {
 			.attr('height', function(d) {return height - y1(d.gold);})
 			.on("mouseover", medalmouseover)
 			.on("mouseout", medalmouseout);
-            /* Silver */
+			/* Silver */
 			g.selectAll()
 			.data(data)
 			.enter()
@@ -336,7 +334,7 @@ div.reference {
 			.attr('height', function(d) {return height - y1(d.silver);})
 			.on("mouseover", medalmouseover)					
 			.on("mouseout", medalmouseout);
-            /* Bronze */
+			/* Bronze */
 			g.selectAll()
 			.data(data)
 			.enter()
@@ -370,10 +368,10 @@ div.reference {
 			.datum(data)
 			.attr("class", "rankline")
 			.attr("d", line)
-            .style("stroke-dasharray", 2000)
-            .style("stroke-dashoffset", 2000)
-            .style("animation", "dash 2s linear forwards");
-         
+			.style("stroke-dasharray", 2000)
+			.style("stroke-dashoffset", 2000)
+			.style("animation", "dash 2s linear forwards");
+			
 			/* Draw points for rank */
 			g.selectAll()
 			.data(data)
@@ -382,7 +380,7 @@ div.reference {
 			.attr("class", function(d) { return "rank y" + d.year; })
 			.attr("cx", function(d) { return x(d.year) + x.bandwidth()/2; })
 			.attr("cy", function(d) { return y2(d.rank); })
-            .attr("r", 7)
+			.attr("r", 7)
 			.on("mouseover", function(event, d) {		
 				ranktooltip.transition()		
 				.duration(200)		
@@ -398,84 +396,89 @@ div.reference {
 			});
 
 			/* Label the graph */
-            drawYearGraphLabels(d3.select('#year svg'), margin, width, height);
+			drawYearGraphLabels(d3.select('#year svg'), margin, width, height);
 
 			/* Add annotations to the graph.*/
-            drawAnnotations(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952.", 200);
-            drawAnnotations(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Dip in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
-            drawAnnotations(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
+			drawAnnotations(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952. Xu Haifeng has won China's first medal the same year.", 200);
+			drawAnnotations(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Dip in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
+			drawAnnotations(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
 		}
-        
-        function drawAnnotations(g, x, y, dx, dy, title, text, wrap) {
-        	const annotations = [
-              {
-                note: {
-                  label: text,
-                  title: title,
-           	      wrap: wrap
-                },
-                x: x,
-                y: y,
-                dy: dy,
-                dx: dx
-              }
-            ];
+		
+		function drawAnnotations(g, x, y, dx, dy, title, text, wrap) {
+			const annotations = [
+			{
+				note: {
+					label: text,
+					title: title,
+					wrap: wrap
+				},
+				x: x,
+				y: y,
+				dy: dy,
+				dx: dx
+			}
+			];
 
             // Add annotation to the chart
             const makeAnnotations = d3.annotation()
-              .annotations(annotations)
+            .annotations(annotations)
             g.append("g")
-              .call(makeAnnotations);
-        
+            .call(makeAnnotations);
+            
         }
 
-		function drawYearGraphLabels(g, margin, width, height) {
+        function drawYearGraphLabels(g, margin, width, height) {
         	/* Label axis */
-            drawAxisLabel(g, margin/2, margin + height/2, 270, "Number of medals");
-            drawAxisLabel(g,(width + margin*3/2) , (margin + height/2), 90, "World rank");
-            drawAxisLabel(g,(width+margin/2),  (margin*4/3 + height), 0, "Year");
-        
-            drawMedalLabel(g,  margin/3 , margin/3, "#fff176", "Gold");
-            drawMedalLabel(g,  margin/3 , margin/3 + 30, "#bdbdbd", "Silver");
-            drawMedalLabel(g,  margin/3 , margin/3 + 60, "#c17900", "Bronze");
-		}
+        	drawAxisLabel(g, margin/2, margin + height/2, 270, "Number of medals");
+        	drawAxisLabel(g,(width + margin*3/2) , (margin + height/2), 90, "World rank");
+        	drawAxisLabel(g,(width+margin/2),  (margin*4/3 + height), 0, "Year");
+        	
+        	drawMedalLabel(g,  margin/3 , margin/3, "#fff176", "Gold");
+        	drawMedalLabel(g,  margin/3 , margin/3 + 30, "#bdbdbd", "Silver");
+        	drawMedalLabel(g,  margin/3 , margin/3 + 60, "#c17900", "Bronze");
+        }
 
-		function drawAxisLabel(g, x, y, rotate, text) {
-			g.append("g")
-            .attr("transform", "translate(" + x + ", " + y + ")" + (rotate ? (" rotate(" + rotate + ")"):""))
-            .append("text")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text(text);
-		}
+        function drawAxisLabel(g, x, y, rotate, text) {
+        	g.append("g")
+        	.attr("transform", "translate(" + x + ", " + y + ")" + (rotate ? (" rotate(" + rotate + ")"):""))
+        	.append("text")
+        	.attr("x", 0)
+        	.attr("y", 0)
+        	.attr("dy", ".35em")
+        	.text(text);
+        }
 
-		function drawMedalLabel(g, x, y, fill, text) {
-			var label = g.append("g")
-            .attr("transform", "translate(" + x + ", " + y + ")");
-            label.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", fill);
-            label.append("text")
-                .attr("x", 20)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .style("font-weight", "bold")
-                .text(text);
+        function drawMedalLabel(g, x, y, fill, text) {
+        	var label = g.append("g")
+        	.attr("transform", "translate(" + x + ", " + y + ")");
+        	label.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", fill);
+        	label.append("text")
+        	.attr("x", 20)
+        	.attr("y", 0)
+        	.attr("dy", ".35em")
+        	.style("font-weight", "bold")
+        	.text(text);
 
-		}
+        }
 
-		function showScene(evt, scene) {
-			var i, tabcontent, tablinks;
-			tabcontent = document.getElementsByClassName("tabcontent");
-			for (i = 0; i < tabcontent.length; i++) {
-				tabcontent[i].style.display = "none";
-			}
-			tablinks = document.getElementsByClassName("tablinks");
-			for (i = 0; i < tablinks.length; i++) {
-				tablinks[i].className = tablinks[i].className.replace(" active", "");
-			}
-			document.getElementById(scene).style.display = "block";
-			evt.currentTarget.className += " active";
-		}
-	</script>
+        async function showScene(evt, scene) {
+        	var i, tabcontent, tablinks;
+        	tabcontent = document.getElementsByClassName("tabcontent");
+        	for (i = 0; i < tabcontent.length; i++) {
+        		tabcontent[i].style.display = "none";
+        	}
+        	tablinks = document.getElementsByClassName("tablinks");
+        	for (i = 0; i < tablinks.length; i++) {
+        		tablinks[i].className = tablinks[i].className.replace(" active", "");
+        	}
+        	document.getElementById(scene).style.display = "block";
+        	evt.currentTarget.className += " active";
+        	if (scene === "year") {
+        		initYearGraph();
+        	} else {
+        		initSportGraph();
+        	}
+        }
+    </script>
 </body>
 </html>
