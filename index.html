@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<script src='https://d3js.org/d3.v5.min.js'></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js'></script>
 <style>
 body {
@@ -59,7 +59,7 @@ rect.bronze[hover=true] {
 }
 
 
-path {
+#year path {
 	fill: none;
 }
 path.rankline {
@@ -89,7 +89,9 @@ circle.rank:hover {
 	fill: #a4a4a4;
 }
 
-div.medaltooltip {	
+div.sporttooltip,
+div.medaltooltip,
+div.ranktooltip {
 	position: absolute;			
 	text-align: center;	
 	padding: 10px;	
@@ -98,18 +100,14 @@ div.medaltooltip {
 	border: 0px;		
 	border-radius: 3px;
 	pointer-events: none;
+}
+
+div.sporttooltip,
+div.medaltooltip {	
 	width: 100px;
 }
 
-div.ranktooltip {	
-	position: absolute;			
-	text-align: center;	
-	padding: 10px;	
-	background: #efefef;
-	color: #373737;
-	border: 0px;		
-	border-radius: 3px;			
-	pointer-events: none;
+div.ranktooltip {
 	width: 130px;
 	height: 20px;
 }
@@ -129,12 +127,12 @@ div.reference {
 
 	<div id="year" class="tabcontent">
 		<h2>Medal Count by Year </h2>
-		<svg height=1000 width=1000></svg>
+		<svg></svg>
 	</div>
 
 	<div id="sport" class="tabcontent">
 		<h2>Medal Count by Sport</h2>
-		<svg height=700 width=700></svg>
+		<svg></svg>
 	</div>
     
     <div class="reference">
@@ -161,28 +159,79 @@ div.reference {
 						total: +d.Total,
 					};
 				});
-			const width = 700;
-			const height = 700;
-			const margin = 200;
+			const width = 2000;
+			const height = width;
+			const margin = 400;
+
+			/* Add tooltip placeholders */
+			var sporttooltip = d3.select("body").append("div")	
+			.attr("class", "sporttooltip")
+			.style("opacity", 0);
 
 			var g = d3.select('#sport svg')
-			.attr("width", width + 2*margin)
-			.attr("height", height + 2*margin)
+			.attr("width", width)
+			.attr("height", height)
 			.append("g")
 			.attr("transform", "translate(" + margin + "," + margin + ")");
 
-			var pie = d3.pie();
-			var arc = d3.arc().innerRadius(0).outerRadius(100);
-            color = d3.scaleOrdinal()
-            .domain(data.map(d => d.name))
-            .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse());
-			g.selectAll()
-			.data(pie(data))
-			.enter()
-			.append("path")
-				.attr("d", arc)
-      			attr("fill", d => color(d.data.name));
+			var pie = d3.pie()
+            .sort(function (a, b) {
+            	return b.total > a.total;
+                }).value(d => d.total);
+            var radius = 300;
+			var arc = d3.arc().innerRadius(0).outerRadius(radius);
+			var arcLabel = d3.arc().innerRadius(radius * 0.8).outerRadius(radius * 0.8);
+            var color = d3.scaleOrdinal()
+              .domain(data.map(d => d.sport))
+              .range(d3.schemePastel1);
+                
+            var sportmouseover = function(event, d) {
+            	const i = d.index;
+				sporttooltip.transition()		
+				.duration(200)		
+				.style("opacity", .9);		
+				sporttooltip.html("<div>Sport: " + data[i].sport + "</div>" + "<div>Total: " + data[i].total + "</div>" + "<div>Gold: " + data[i].gold + "</div>"
+                 + "<div>Silver: " + data[i].silver + "</div>" + "<div>Bronze: " + data[i].bronze + "</div>")
+				.style("left", event.pageX + "px")		
+				.style("top", event.pageY - 60 + "px");	
+			}; 
+            
+            var sportmouseout = function(event, d) {
+				sporttooltip.transition()		
+				.duration(500)
+				.style("opacity", 0);	
+			};
 
+            var arcs = g.selectAll('path')
+              .data(pie(data))
+              .enter()
+              .append("g");
+
+            arcs.append("path")
+                .attr("d", function (d) {
+                    return arc(d);
+                })
+                .attr("fill", function(d){
+                    return color(d);
+                })
+                .attr("id", function(d) {return data[d.index].sport;})
+                .attr("x", function(d) {return arcLabel.centroid(d)[0];})
+                .attr("y", function(d) {return arcLabel.centroid(d)[1];})
+				.on("mouseover", sportmouseover)					
+				.on("mouseout", sportmouseout);
+
+            arcs.append("text")
+              .attr("transform", function(d) {
+                  return "translate(" + arcLabel.centroid(d) + ")";
+                })
+                .attr("text-anchor", "middle")
+                .text( function(d, i) {
+                  return data[i].total > 20 ? data[i].sport : "";}
+                );
+                
+            /* Draw annotations. */
+            drawAnnotations(g, g.select("path#Diving").attr("x"), arcs.select("path#Diving").attr("y"), -150, -150, "", "China has been the best nation at summer Olympics diving since 1988.", 50);
+            drawAnnotations(g, g.select("path#Gymnastics").attr("x"), arcs.select("path#Gymnastics").attr("y"), 50, 150, "", "Despite having the most medals in Gymnastics among all sports, China is still behind U.S. and Japan in total medal count.", 10);
 		}
 
 		async function initYearGraph() {
@@ -242,7 +291,7 @@ div.reference {
 			.attr("transform", "translate(" + margin + "," + margin + ")");
 
 			/* Draw bars for medals */
-            var medalmouseover = function(d) {
+            var medalmouseover = function(event, d) {
             	d3.select('#year svg rect.gold.y' + d.year).attr('hover', true);
             	d3.select('#year svg rect.silver.y' + d.year).attr('hover', true);
             	d3.select('#year svg rect.bronze.y' + d.year).attr('hover', true);
@@ -251,11 +300,11 @@ div.reference {
 				.style("opacity", .9);		
 				medaltooltip.html("<div>Total: " + d.total + "</div>" + "<div>Gold: " + d.gold + "</div>"
                  + "<div>Silver: " + d.silver + "</div>" + "<div>Bronze: " + d.bronze + "</div>")
-				.style("left", d3.event.pageX + "px")		
-				.style("top", d3.event.pageY - 60 + "px");	
+				.style("left", event.pageX + "px")		
+				.style("top", event.pageY - 60 + "px");	
 			}; 
             
-            var medalmouseout = function(d) {
+            var medalmouseout = function(event, d) {
             	d3.select('#year svg rect.gold.y' + d.year).attr('hover', false);
             	d3.select('#year svg rect.silver.y' + d.year).attr('hover', false);
             	d3.select('#year svg rect.bronze.y' + d.year).attr('hover', false);
@@ -334,15 +383,15 @@ div.reference {
 			.attr("cx", function(d) { return x(d.year) + x.bandwidth()/2; })
 			.attr("cy", function(d) { return y2(d.rank); })
             .attr("r", 7)
-			.on("mouseover", function(d) {		
+			.on("mouseover", function(event, d) {		
 				ranktooltip.transition()		
 				.duration(200)		
 				.style("opacity", .9);		
 				ranktooltip.html("World rank: " + d.rank)
-				.style("left", d3.event.pageX + "px")		
-				.style("top", d3.event.pageY - 60 + "px");	
+				.style("left", event.pageX + "px")		
+				.style("top", event.pageY - 60 + "px");	
 			})					
-			.on("mouseout", function(d) {		
+			.on("mouseout", function(event, d) {		
 				ranktooltip.transition()		
 				.duration(500)
 				.style("opacity", 0);	
