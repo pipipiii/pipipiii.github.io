@@ -57,10 +57,21 @@ rect.bronze {
 	fill: #c17900;
 }
 
-path.rankline {
+
+path {
 	fill: none;
+}
+path.rankline {
 	stroke: #616161;
 	stroke-width: 5;
+}
+path.annotation1 {
+	stroke: #616161;
+	stroke-width: 1;
+}
+path.annotation2 {
+	stroke: #616161;
+	stroke-width: 3;
 }
 
 circle.rank {
@@ -96,6 +107,10 @@ div.ranktooltip {
 	width: 130px;
 	height: 20px;
 }
+
+div.annotation {
+	width: 100px;
+}
 </style>
 <body onload='init()'>
 	<h1>China in Olympics</h1>
@@ -106,13 +121,13 @@ div.ranktooltip {
 	</div>
 
 	<div id="year" class="tabcontent">
-		<h2>Medal Count by Year</h2>
-		<svg width=1000 height=1000 />
+		<h2>Medal Count by Year </h2>
+		<svg/>
 	</div>
 
 	<div id="sport" class="tabcontent">
 		<h2>Medal Count by Sport</h2>
-		<svg width=1000 height=1000 />
+		<svg/>
 	</div>
 
 
@@ -137,13 +152,13 @@ div.ranktooltip {
 						rank: +d.Rank
 					};
 				});
-			const width = 700;
-			const height = 700;
-			const margin = 50;
+			const width = 800;
+			const height = 800;
+			const margin = 200;
 
 			/* Add tooltip placeholders */
 			var medaltooltip = d3.select("body").append("div")	
-			.attr("class", "medaltooltip")				
+			.attr("class", "medaltooltip")
 			.style("opacity", 0);
 			var ranktooltip = d3.select("body").append("div")	
 			.attr("class", "ranktooltip")				
@@ -282,12 +297,26 @@ div.ranktooltip {
 			});
 
 			/* Add annotations to the graph.*/
-            drawAnnotation(g, );
+            drawAnnotation(g, 140,800, "abc");
 		}
 
 		function drawAnnotation(g, x, y, text) {
-			g.selectAll()
-			.append()
+			var annotation = g.append("g")
+            .attr("transform", "translate(" + x + "," + y + ")");
+            annotation.append("path")
+            .attr("class", "annotation1")
+            .attr("d", "M0 0 L60 60");
+			annotation
+            .attr("transform", "translate(" + x + "," + y + ")").append("path")
+            .attr("class", "annotation2")
+            .attr("d", "M60 60 L200 60");
+			annotation
+            .attr("transform", "translate(60,60)")
+            .append("div")
+            .attr("class", "annotation")
+            .attr("width", "100px")
+            .attr("height", "100px")
+            .html(text);	
 		}
 
 		function showScene(evt, scene) {
