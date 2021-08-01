@@ -296,9 +296,11 @@ div.ranktooltip {
 			});
 
 			/* Add annotations to the graph.*/
+            drawAnnotation2(g, g.select("circle.rank.y1984").attr("cx"), g.select("circle.rank.y1984").attr("cy"), 50, -40, "Reappearance", "China's first appearance in the summer games since 1952.", 200);
+            
             drawAnnotation2(g, g.select("circle.rank.y1988").attr("cx"), g.select("circle.rank.y1988").attr("cy"), 50, 60, "Large drop in 1988", "Soviet Union and East Germany rejoined \nthe 1988 summer Olympics after boycotting in 1984,\n where they ranked top 1 and 2, winning\n 132 and 102 medals each.", 300);
             
-            drawAnnotation2(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games were hosted in Beijing.", 300);
+            drawAnnotation2(g, g.select("circle.rank.y2008").attr("cx"), g.select("circle.rank.y2008").attr("cy"), -20, -20, "Beijing Olympics", "China ranked world top 1 in medals count in 2008, when the summer games was hosted in Beijing.", 300);
 		}
         
         function drawAnnotation2(g, x, y, dx, dy, title, text, wrap) {
@@ -311,8 +313,8 @@ div.ranktooltip {
                 },
                 x: x,
                 y: y,
-                dy: dx,
-                dx: dy
+                dy: dy,
+                dx: dx
               }
             ];
 
