@@ -328,14 +328,33 @@ div.ranktooltip {
         }
 
 		function drawAnnotations(g, margin) {
-			var annotation = g.append("g")
+			var gold = g.append("g")
             .attr("transform", "translate(" + margin + ", " + margin + ")");
-            annotation.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#fff176");
-            annotation.append("text")
-                .attr("x", 65)
-                .attr("y", 70)
+            gold.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#fff176");
+            gold.append("text")
+                .attr("x", 20)
+                .attr("y", 0)
                 .attr("dy", ".35em")
+                .style("font-weight", "bold")
                 .text("Gold");
+			var silver = g.append("g")
+            .attr("transform", "translate(" + margin + ", " + (margin + 30) + ")");
+            silver.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#bdbdbd");
+            silver.append("text")
+                .attr("x", 20)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .style("font-weight", "bold")
+                .text("Silver");
+			var bronze = g.append("g")
+            .attr("transform", "translate(" + margin + ", " + (margin + 60) + ")");
+            bronze.append("circle").attr("dx", 0).attr("dy", 0).attr("r", 10).attr("fill", "#c17900");
+            bronze.append("text")
+                .attr("x", 20)
+                .attr("y", 0)
+                .attr("dy", ".35em")
+                .style("font-weight", "bold")
+                .text("Bronze");
 		}
 
 		function showScene(evt, scene) {
